@@ -1,0 +1,519 @@
+definitions:
+  models.APIPagingDto:
+    properties:
+      direction:
+        type: string
+      filter:
+        type: string
+      limit:
+        type: integer
+      page:
+        type: integer
+      select:
+        items:
+          type: string
+        type: array
+      sort:
+        type: string
+    type: object
+  models.CreateProductDto:
+    properties:
+      currency:
+        $ref: '#/definitions/models.Currency'
+      description:
+        maxLength: 100
+        minLength: 4
+        type: string
+      discount:
+        type: integer
+      name:
+        maxLength: 30
+        minLength: 4
+        type: string
+      price:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - currency
+    - description
+    - name
+    - price
+    - quantity
+    type: object
+  models.Currency:
+    enum:
+    - NGN
+    type: string
+    x-enum-varnames:
+    - CURRENCY_NGN
+  models.OrderStatus:
+    enum:
+    - pending
+    - processing
+    - delivered
+    - cancelled
+    - shipped
+    type: string
+    x-enum-varnames:
+    - PENDING
+    - PROCESSING
+    - DELIVERED
+    - CANCELLED
+    - SHIPPED
+  models.PlaceOrder:
+    properties:
+      product_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  models.PlaceOrderDto:
+    properties:
+      currency:
+        $ref: '#/definitions/models.Currency'
+      data:
+        items:
+          $ref: '#/definitions/models.PlaceOrder'
+        type: array
+    required:
+    - currency
+    type: object
+  models.ProductStatus:
+    enum:
+    - in-stock
+    - not-in-stock
+    - sold-out
+    type: string
+    x-enum-varnames:
+    - IN_STOCK
+    - NOT_IN_STOCK
+    - SOLD_OUT
+  models.ResponseObject:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  models.SignInDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.SignUpDto:
+    properties:
+      email:
+        type: string
+      firstName:
+        maxLength: 25
+        minLength: 2
+        type: string
+      lastName:
+        maxLength: 25
+        minLength: 2
+        type: string
+      password:
+        type: string
+      role:
+        $ref: '#/definitions/models.UserRole'
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  models.UpdateOrderStatusDto:
+    properties:
+      status:
+        $ref: '#/definitions/models.OrderStatus'
+    required:
+    - status
+    type: object
+  models.UpdateProductDto:
+    properties:
+      description:
+        maxLength: 100
+        minLength: 4
+        type: string
+      discount:
+        type: integer
+      name:
+        maxLength: 30
+        minLength: 4
+        type: string
+      price:
+        type: integer
+      quantity:
+        type: integer
+      status:
+        $ref: '#/definitions/models.ProductStatus'
+    type: object
+  models.UserRole:
+    enum:
+    - user
+    - admin
+    type: string
+    x-enum-varnames:
+    - USER_ROLE_USER
+    - USER_ROLE_ADMIN
+info:
+  contact: {}
+paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user
+      parameters:
+      - description: data to sign up new user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            $ref: '#/definitions/models.ResponseObject'
+      summary: Create new user
+      tags:
+      - User
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in a user
+      parameters:
+      - description: data to log in a user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignInDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            $ref: '#/definitions/models.ResponseObject'
+      summary: Login  user
+      tags:
+      - User
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Gets All Orders
+      parameters:
+      - description: 'data to query for all '
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.APIPagingDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get All Orders
+      tags:
+      - Order
+    post:
+      consumes:
+      - application/json
+      description: Places a new Order
+      parameters:
+      - description: data to place new order
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlaceOrderDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            $ref: '#/definitions/models.ResponseObject'
+      summary: Place Order
+      tags:
+      - Order
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get Single Order by id
+      parameters:
+      - description: Order Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Single Order
+      tags:
+      - Order
+  /orders/{id}/cancel:
+    put:
+      consumes:
+      - application/json
+      description: Cancel Order with a given Id
+      parameters:
+      - description: Order Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Cancel Order
+      tags:
+      - Order
+  /orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update Order Status with a given Id
+      parameters:
+      - description: Order Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: data to update order status
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateOrderStatusDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Order Status
+      tags:
+      - Order
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Gets All products
+      parameters:
+      - description: 'data to query for all '
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.APIPagingDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get All Products
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Creates a new product
+      parameters:
+      - description: data to create new product
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateProductDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            $ref: '#/definitions/models.ResponseObject'
+      summary: Create new Product
+      tags:
+      - Product
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product by id
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete Product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Get Single product by id
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get Single product
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Updates Product with a given Id
+      parameters:
+      - description: Product Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: data to update product with
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateProductDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: desc
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update Product
+      tags:
+      - Product
+swagger: "2.0"
