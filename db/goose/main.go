@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rs/zerolog"
-
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 

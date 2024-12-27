@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
+
 	"e-commerce/common/messages"
 	"e-commerce/config"
 	"e-commerce/models"
-
-	"github.com/golang-jwt/jwt/v5"
 )
 
 type (

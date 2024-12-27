@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// AuthenticatedUserMiddleware converts a bearer token to an authenticated user
 func (h *Handler) AuthenticatedUserMiddleware() gin.HandlerFunc {
 	// add the middleware function
 	return func(c *gin.Context) {
@@ -23,6 +24,7 @@ func (h *Handler) AuthenticatedUserMiddleware() gin.HandlerFunc {
 	}
 }
 
+// UserPermissionMiddleware ensures a user has user role
 func (h *Handler) UserPermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := c.MustGet("authUser").(*models.User)
@@ -34,6 +36,7 @@ func (h *Handler) UserPermissionMiddleware() gin.HandlerFunc {
 	}
 }
 
+// AdminPermissionMiddleware ensures a user has an admin role
 func (h *Handler) AdminPermissionMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user := c.MustGet("authUser").(*models.User)
